@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef, memo } from 'react';
-import { Loader2, Sparkles, Bug, Flame, ShieldAlert, ExternalLink } from 'lucide-react';
+import { useState, useCallback, useEffect, memo } from 'react';
+import { Loader2, Bug, Flame, ShieldAlert, ExternalLink } from 'lucide-react';
 
 /**
  * OSIRIS — Daily chain-threat brief.
  *
  * Rendered inside the RECON toolkit's CHAIN INTEL tab. Self-contained: owns
- * its own fetch, window selector, unattended refresh and AI overview, so the
- * host panel only has to drop it in.
+ * its own fetch, window selector and unattended refresh, so the host panel
+ * only has to drop it in.
  */
 
 const ACCENT = '#F7931A';
@@ -44,12 +44,6 @@ function ChainBriefInner() {
   const [error, setError] = useState('');
   const [days, setDays] = useState(30);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
-  const [ai, setAi] = useState('');
-  const [aiLoading, setAiLoading] = useState(false);
-
-  const briefRef = useRef(brief);
-  briefRef.current = brief;
-
   const load = useCallback(async (d: number, force = false) => {
     setLoading(true);
     setError('');
@@ -76,25 +70,6 @@ function ChainBriefInner() {
     }, AUTO_REFRESH_MS);
     return () => clearInterval(t);
   }, [days, load]);
-
-  const runAi = useCallback(async () => {
-    if (!briefRef.current) return;
-    setAiLoading(true);
-    setAi('');
-    try {
-      const res = await fetch('/api/ai/overview', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: 'chain', payload: { brief: briefRef.current } }),
-      });
-      const d = await res.json();
-      setAi(d.overview || d.error || 'No overview returned.');
-    } catch {
-      setAi('AI overview unavailable.');
-    } finally {
-      setAiLoading(false);
-    }
-  }, []);
 
   const t = brief?.totals;
 
@@ -148,22 +123,6 @@ function ChainBriefInner() {
               </div>
             ))}
           </div>
-
-          <button
-            onClick={runAi}
-            disabled={aiLoading}
-            className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded text-[10px] font-mono font-bold tracking-wider transition-colors disabled:opacity-50"
-            style={{ color: ACCENT, background: `${ACCENT}14`, border: `1px solid ${ACCENT}44` }}
-          >
-            {aiLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-            AI OVERVIEW
-          </button>
-          {ai && (
-            <div className="mt-1.5 px-2 py-1.5 rounded border text-[11px] font-mono leading-relaxed whitespace-pre-wrap"
-              style={{ borderColor: `${ACCENT}33`, background: `${ACCENT}0a`, color: 'var(--text-secondary)' }}>
-              {ai}
-            </div>
-          )}
 
           <Head title="ON-CHAIN EXPLOITS" icon={Flame} color="#FF3D3D" right={`${brief.exploits.length} shown`} />
           {brief.exploits.length === 0 && (

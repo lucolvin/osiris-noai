@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import {
-  Bot, Camera, ChevronDown, ExternalLink, HardDrive, KeyRound, Map as MapIcon, MessageCircle, Search, ShieldCheck, Sparkles, UserX, EyeOff,
+  Bot, Camera, ChevronDown, ExternalLink, HardDrive, Map as MapIcon, MessageCircle, Search, ShieldCheck, UserX, EyeOff,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -17,12 +17,11 @@ export const metadata: Metadata = {
  * from a template; when a data flow changes, this page changes with it.
  *
  * Reviewed 2026-10-04 against: src/app/api/geo, src/app/api/osint/*,
- * src/app/api/ai/*, src/app/api/oi/*, src/lib/oi/* (client, service, web,
- * newsroom, markets), src/lib/sanctions.ts, src/lib/sherlock.ts,
+ * src/lib/sanctions.ts, src/lib/sherlock.ts,
  * src/lib/chainIntel.ts, src/app/page.tsx (IP location, storage),
  * src/components/OsirisMap.tsx (base map, satellite), src/app/globals.css
  * (fonts), src/components/LiveAlerts.tsx, src/lib/live-clouds.ts,
- * src/lib/donbot.ts, src/components/oi/assist/voice.ts, the CCTV sources, and
+ * src/lib/donbot.ts, the CCTV sources, and
  * every localStorage and sessionStorage key in src/.
  */
 
@@ -87,9 +86,6 @@ function Flow({ icon, title, summary, services, children }: {
 }
 
 const STORED: { what: string; detail: string }[] = [
-  { what: 'Your AI key for OI', detail: 'Kept for this browser tab only, and gone when you close it, unless you tick “Remember on this device”.' },
-  { what: 'Your OI settings and recent predictions', detail: 'Which provider and model you use, whether replies are read aloud, and a list of your last 25 predictions so you can reopen them.' },
-  { what: 'Your OI Assist conversation', detail: 'For this tab only, so a reload does not lose it.' },
   { what: 'Areas you draw on the map', detail: 'So a refresh does not wipe your work.' },
   { what: 'How the map looks', detail: 'Your Style Studio colours and the last city the map opened on.' },
   { what: 'Your market watchlist and recent fingerprint searches', detail: 'So they are there next time. The search list can be cleared from the search panel.' },
@@ -99,7 +95,6 @@ const PROMISES: { icon: ReactNode; title: string; body: string }[] = [
   { icon: <UserX className="h-4 w-4" />, title: 'No account, ever', body: 'There is nothing to sign up for and nothing to log in to. We do not know who you are, and we have not asked.' },
   { icon: <EyeOff className="h-4 w-4" />, title: 'No tracking', body: 'No analytics, no advertising networks, no tracking cookies. We do not build a profile of you or of what you do here.' },
   { icon: <HardDrive className="h-4 w-4" />, title: 'Your things stay with you', body: 'Your settings, history and keys are kept in your own browser, where you can see them and clear them. Not on our servers.' },
-  { icon: <KeyRound className="h-4 w-4" />, title: 'Your AI key is yours', body: 'Used only for the request you make, passed straight to the provider you chose, and never stored on our servers or written to a log.' },
 ];
 
 /* ───────────── The page ───────────── */
@@ -133,7 +128,6 @@ export default function PrivacyPage() {
               'Most of what you see comes from public sources. To show it, our server asks those sources, much as your browser would.',
               'When you look something up, the question goes to the service that holds the answer, and only for that lookup.',
               'Your preferences and history live in your browser. Clearing this site’s data in your browser removes all of it.',
-              'Features that use AI run on the key and provider you choose, and we pass your request straight through.',
               'We do not keep a record of what you search. Your address is held only briefly, in memory, to keep usage fair for everyone.',
               'The site reaches you through Cloudflare, which carries the connection between your browser and our server, as it does for much of the web.',
             ].map(t => (
@@ -146,7 +140,7 @@ export default function PrivacyPage() {
         </Section>
 
         <Section id="device" title="What stays on your device"
-          intro="These are kept in your browser’s own storage on this device. We never receive them unless a feature you use needs one, like your AI key for an OI request. Clearing this site’s data in your browser settings removes them all.">
+          intro="These are kept in your browser’s own storage on this device. We never receive them unless a feature you use needs one. Clearing this site’s data in your browser settings removes them all.">
           <div className="divide-y divide-[var(--border-primary)]/60 rounded-xl border border-[var(--border-primary)]">
             {STORED.map(s => (
               <div key={s.what} className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:gap-6">
@@ -204,31 +198,9 @@ export default function PrivacyPage() {
                 browser, as for any picture on the web.
               </>} />
 
-            <Flow icon={<Sparkles className="h-4 w-4" />} title="Using OI, on your own AI key"
+            <Flow icon={<Bot className="h-4 w-4" />} title="Token scans"
               summary={<>
-                OI runs on the AI provider and key you choose. When you start a prediction, talk to OI Assist or check your
-                key, your request goes from our server to that provider: your question and any data you add for a
-                prediction, or the conversation and what is on the map for Assist. The provider sees our server’s address,
-                not yours. Your key is used for that request and nothing else.
-              </>}
-              services={[
-                { name: 'The provider you choose', what: 'OpenAI, Anthropic, Google, OpenRouter, Groq, DeepSeek, xAI, Mistral or Alibaba Cloud: your key and your request' },
-                { name: 'News publishers’ feeds, GDELT, Wikipedia', what: 'a few keywords from your question, to find the reporting and background a prediction reads; the articles found are then read from their publishers' },
-                { name: 'Yahoo Finance', what: 'the ticker of a price your question is about, for its price history and its news' },
-                { name: 'Polymarket and Manifold', what: 'a few keywords from your question, to find what prediction markets price it at; and, for the suggestions on the ask form, nothing about you at all' },
-                { name: 'Wikipedia and Wikidata', what: 'a place name, when OI Assist looks one up and our own place search server cannot answer, asked from your browser' },
-              ]}>
-              <p className="mt-3 text-[13px] leading-relaxed text-[var(--text-muted)]">
-                A prediction has its own link so it can be shared: anyone you give the link to can open it, and it is kept
-                on our server for three hours after it finishes. The microphone in OI Assist uses your browser’s own
-                speech recognition (in Chrome and Edge, a Google or Microsoft service); we only ever receive the words.
-              </p>
-            </Flow>
-
-            <Flow icon={<Bot className="h-4 w-4" />} title="AI briefings and token scans"
-              summary={<>
-                The briefing, analysis and overview buttons send the feed headlines they summarise to Google Gemini, on this
-                site’s own key. A DonBot token scan opens DigitalDon’s scanner in a sealed frame, which receives the token
+                A DonBot token scan opens DigitalDon’s scanner in a sealed frame, which receives the token
                 you scan.
               </>} />
           </div>
@@ -238,8 +210,6 @@ export default function PrivacyPage() {
           <div className="grid gap-3 sm:grid-cols-2">
             {[
               { t: 'A lookup is a question to someone else', b: 'The service that answers a lookup sees what was asked. If what you are researching is sensitive, keep that in mind before you search.' },
-              { t: 'Shared links are open', b: 'Anyone with a prediction’s link can open it while it is kept. Share it with the people you mean to.' },
-              { t: 'AI is a starting point', b: 'Briefings and predictions are written by language models. OI shows its sources so you can check them, and you should.' },
               { t: 'Scan only what you may', b: 'Scans are rate limited and kept away from private networks, but whether you may scan a system is between you and its owner.' },
             ].map(x => (
               <div key={x.t} className="rounded-xl border border-[var(--border-primary)] bg-white/[0.02] p-4">
@@ -253,8 +223,7 @@ export default function PrivacyPage() {
         <Section id="choices" title="Your choices">
           <ul className="flex flex-col gap-2.5 text-sm leading-relaxed text-[var(--text-muted)]">
             <li><span className="text-[var(--text-primary)]">Clear everything</span> by clearing this site’s data in your browser settings.</li>
-            <li><span className="text-[var(--text-primary)]">Keep your AI key to one session</span> by leaving “Remember on this device” unticked; it is then forgotten when the tab closes.</li>
-            <li><span className="text-[var(--text-primary)]">Use only what you need</span>: map layers, cameras and AI features reach out only when you switch them on or use them.</li>
+            <li><span className="text-[var(--text-primary)]">Use only what you need</span>: map layers and cameras reach out only when you switch them on or use them.</li>
             <li><span className="text-[var(--text-primary)]">Run your own copy</span>: OSIRIS is open source, so you can host it yourself and decide who operates it.</li>
           </ul>
         </Section>

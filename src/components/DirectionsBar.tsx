@@ -419,7 +419,7 @@ function PlaceInput({
       {open && options.length > 0 && (
         <div role="listbox" aria-label={empty ? 'Suggestions' : 'Places found'}
           className="absolute top-full -left-[26px] -right-[42px] mt-1.5 z-[10000] rounded-xl border border-[var(--border-primary)] p-1.5 max-h-[280px] overflow-y-auto styled-scrollbar"
-          style={{ background: 'var(--oi-solid)', boxShadow: '0 18px 44px rgba(0,0,0,0.75)' }}>
+          style={{ background: 'var(--tool-solid)', boxShadow: '0 18px 44px rgba(0,0,0,0.75)' }}>
           {empty && recent.length > 0 && <span className="block px-3 pt-1 pb-1 text-[9.5px] font-mono tracking-[0.14em] uppercase text-[var(--text-muted)]">Recent</span>}
           {options.map((r, i) => (
             <PlaceRow key={`${r.kind}-${r.label}-${r.lat}-${i}`} place={r} query={empty ? '' : value} on={i === at}
@@ -874,7 +874,7 @@ export default function DirectionsBar({ onRoute, onLocate, onClose, center = nul
             )}
 
             {/* summary — sticky so time, distance and arrival stay in view while the steps scroll under it */}
-            <div className="sticky top-0 z-10 px-4 pt-3.5 pb-3 border-b border-[var(--border-secondary)]" style={{ background: 'var(--oi-solid)' }}>
+            <div className="sticky top-0 z-10 px-4 pt-3.5 pb-3 border-b border-[var(--border-secondary)]" style={{ background: 'var(--tool-solid)' }}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex items-baseline gap-2">

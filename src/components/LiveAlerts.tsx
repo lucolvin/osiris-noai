@@ -7,7 +7,6 @@ import {
   ChevronDown, ChevronUp, MapPin, ExternalLink, Radio, Maximize2, Minimize2,
   Search, X, RefreshCw, Image as ImageIcon, Play, Eye, Repeat2, CornerDownRight, Waves, Layers, AlertTriangle,
 } from 'lucide-react';
-import AiOverview from './AiOverview';
 import {
   ALERT_KINDS, BLOCS, BLOC_ORDER, buildThreads, groupStatements, timeAgo, type AlertKind, type Bloc, type DigestReport,
 } from '@/lib/alert-digest';
@@ -693,7 +692,6 @@ export default function LiveAlerts({ data, onLocate, onWatchFeed, onRefresh, pin
   const [newsKind, setNewsKind] = useState<'rocket' | 'breaking' | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [overviewOpen, setOverviewOpen] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
   const [now, setNow] = useState(() => Date.now());
 
@@ -744,14 +742,6 @@ export default function LiveAlerts({ data, onLocate, onWatchFeed, onRefresh, pin
 
   const threads = useMemo(() => buildThreads(digestReports, 8), [digestReports]);
   const activeThread = threads.find(t => t.id === threadId) ?? null;
-
-  // Only what the overview reads — not the whole dashboard state.
-  const overviewPayload = useMemo(() => ({
-    news: digestReports,
-    earthquakes: quakes.map(q => ({ magnitude: q.magnitude, place: q.place, time: q.ts, tsunami: q.tsunami ? 1 : 0, url: q.url })),
-    weather_events: (data.weather_events ?? []).slice(0, 100).map(w => ({ type: str(rec(w).type), severity: str(rec(w).severity) })),
-  }), [digestReports, quakes, data.weather_events]);
-  const signature = `${news[0]?.id ?? ''}|${news.length}|${quakes[0]?.id ?? ''}`;
 
   const q = query.trim().toLowerCase();
 
@@ -977,23 +967,8 @@ export default function LiveAlerts({ data, onLocate, onWatchFeed, onRefresh, pin
         )}
       </div>
 
-      {/* One-click AI overview of the current alert picture */}
-      {tab !== 'feeds' && tab !== 'warnings' && (
-        <div className={maximized ? '' : 'max-h-[240px] overflow-y-auto styled-scrollbar pr-0.5'}>
-          <AiOverview
-            mode="alerts"
-            payload={overviewPayload}
-            signature={signature}
-            accent={ACCENT}
-            activeThreadId={threadId}
-            onThreadSelect={selectThread}
-            onOpenChange={setOverviewOpen}
-          />
-        </div>
-      )}
-
-      {/* Threads: the same clustering the overview uses, available without a click */}
-      {tab !== 'quakes' && tab !== 'warnings' && tab !== 'feeds' && threads.length > 0 && !overviewOpen && (
+      {/* Threads: reports clustered by story */}
+      {tab !== 'quakes' && tab !== 'warnings' && tab !== 'feeds' && threads.length > 0 && (
         <div className={maximized ? 'flex flex-wrap gap-1' : '-mx-3 flex gap-1 overflow-x-auto px-3 pb-0.5 styled-scrollbar'}>
           {threads.map(t => {
             const active = t.id === threadId;

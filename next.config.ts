@@ -18,14 +18,7 @@ const nextConfig: NextConfig = {
      everywhere except Vercel, so Docker and the platform both get what they
      expect. */
   output: process.env.VERCEL ? undefined : 'standalone',
-  /* onnxruntime-web runs the camera detector for forecasts, and loads its
-     WebAssembly engine from its own folder at run time: bundling it would
-     move the code away from the engine, so it stays a package, and the
-     standalone build is told to bring the two engine files along. */
-  serverExternalPackages: ['ws', 'onnxruntime-web'],
-  outputFileTracingIncludes: {
-    '/api/**': ['./node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.mjs', './node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.wasm'],
-  },
+  serverExternalPackages: ['ws'],
   transpilePackages: ['react-map-gl', 'mapbox-gl', 'maplibre-gl'],
   // Type errors block the build again. They were suppressed while 17 stood
   // unfixed; those are cleared, so the gate can do its job — the AstraPanel
@@ -60,13 +53,6 @@ const nextConfig: NextConfig = {
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
-      // The camera detector's model: versioned in its path like the map worker, so the same URL never changes.
-      {
-        source: '/vendor/yolox/:version/:file*',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-        ],
-      },
       /* The built-in place list (lib/places.ts): over a megabyte, and it only
          changes when tools/build-places.mjs is run again, so a browser keeps
          it for a day rather than asking again on every page load. */
@@ -86,10 +72,10 @@ const nextConfig: NextConfig = {
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           // Other sites learn the origin a visitor came from, not the view they were on.
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          /* Location (directions, "near me") and the microphone (OI voice)
-             are used by OSIRIS itself and by nothing it embeds; the rest it
-             never asks for, so no page or embed can. */
-          { key: 'Permissions-Policy', value: 'geolocation=(self), microphone=(self), camera=(), payment=(), usb=(), display-capture=()' },
+          /* Location (directions, "near me") is used by OSIRIS itself and by
+             nothing it embeds; the rest it never asks for, so no page or
+             embed can. */
+          { key: 'Permissions-Policy', value: 'geolocation=(self), microphone=(), camera=(), payment=(), usb=(), display-capture=()' },
         ],
       },
     ];

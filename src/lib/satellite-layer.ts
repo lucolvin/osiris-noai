@@ -146,7 +146,7 @@ void main() {
  * marker, no wider, and one hidden behind the planet is not a target at all.
  * The visible pass hides those with the globe's depth, which this buffer does
  * not have, so they are tested against the planet here instead (the same
- * test OI's arcs use). A padded target over a catalogue this dense made
+ * test the arc layer uses). A padded target over a catalogue this dense made
  * nearly half the globe open a satellite.
  */
 const PICK_VERT = `

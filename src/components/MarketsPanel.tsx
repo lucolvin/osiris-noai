@@ -8,7 +8,6 @@ import {
   BarChart3, Bitcoin, ChevronDown, ChevronUp, DollarSign, Droplets, Gem, LineChart,
   Maximize2, Minimize2, Shield, Star, TriangleAlert,
 } from 'lucide-react';
-import AiOverview from './AiOverview';
 import DonBotScan from './DonBotScan';
 import DigitalDonMark from './DigitalDonMark';
 import {
@@ -608,9 +607,6 @@ export default function MarketsPanel({ data, spaceWeather }: MarketsPanelProps) 
     </div>
   );
 
-  // AiOverview builds tints by appending alpha to the colour, so it needs a hex.
-  const ai = <AiOverview mode="markets" payload={{ markets, spaceWeather }} accent="#D4AF37" />;
-
   const toggleMax = () => { setMaximized(m => !m); setExpanded(true); };
 
   if (maximized && mounted && typeof document !== 'undefined') {
@@ -656,7 +652,6 @@ export default function MarketsPanel({ data, spaceWeather }: MarketsPanelProps) 
                 {alerts}
                 {movers}
                 {footer}
-                {ai}
               </div>
             </div>
           </div>
@@ -704,7 +699,6 @@ export default function MarketsPanel({ data, spaceWeather }: MarketsPanelProps) 
           {chart}
           {content}
           {footer}
-          {ai}
         </div>
       )}
     </motion.div>

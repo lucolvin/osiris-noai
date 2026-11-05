@@ -7,10 +7,7 @@ import { installTerrainTileProtocol } from '@/lib/terrain-tiles';
 import { CLOUDS_ATTRIBUTION, CLOUDS_CREDIT, CLOUDS_LAYER, frameTime } from '@/lib/live-clouds';
 import { createCloudLayer } from '@/lib/live-clouds-layer';
 import { WIND_ATTRIBUTION } from '@/lib/wind-layer';
-import { attachOi, type OiGlobe, type OiHover } from '@/lib/oi/globe';
-import { attachHighlights, type Highlighter } from '@/lib/oi/highlights';
 import { attachNetIntelArcs, type NetIntelArcs } from '@/lib/net-intel-arcs';
-import type { Highlight } from '@/lib/oi/assist/tools';
 import { createSatelliteLayer, parseColor, SAT_MAX_ZOOM, type SatPoint } from '@/lib/satellite-layer';
 import { MAP_DEFAULTS, MAP_PALETTE_KEYS, readMapPalette, satColorFor, type MapPalette } from '@/lib/map-palette';
 import { STYLE_EVENT } from '@/lib/style-tokens';
@@ -115,16 +112,6 @@ interface OsirisMapProps {
   navigating?: boolean;
   /** Corroborated endpoint airports for watched aircraft, keyed by icao24. */
   aircraftAirports?: Record<string, Array<{ icao: string; iata?: string; city?: string; lat: number; lng: number }>>;
-  /** Hands the page OI's globe layer, so a run draws without re-rendering the map. Null when it goes. */
-  onOiGlobe?: (globe: OiGlobe | null) => void;
-  /** A piece of OI's analysis was clicked: an arc ("link:<id>") or a point ("a:<actor>", "e:<event>"…); null for empty map. */
-  onOiSelect?: (key: string | null) => void;
-  /** The pointer is over a piece of OI's analysis, or has left it. */
-  onOiHover?: (hover: OiHover | null) => void;
-  /** OI's camera started or stopped following the run. */
-  onOiFollow?: (following: boolean) => void;
-  /** What OI Assist has marked on the map: found things, named places, a searched area. */
-  oiHighlight?: Highlight | null;
 }
 
 function computeSolarTerminator(): [number, number][] {
@@ -202,7 +189,7 @@ interface AlertPinFeature {
   properties: AlertPinProps;
 }
 
-function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightClick, onViewStateChange, onReady, flyToLocation, alertPinIds = null, projection = 'globe', terrainEnabled = false, terrainRetry = 0, terrainFocus = 0, onTerrainStatusChange, onLayerOff, mapStyle = 'dark', sweepData, scanTargets = [], demoMode = false, theme = 'core', drawnPolygons = [], arcgisLayers = [], drawMode = null, onDrawComplete, onDrawProgress, onDrawCancel, drawCommand = null, onMapCenter, onTransitStatus, route = null, userLocation = null, followUser = false, onFollowInterrupt, navigating = false, aircraftAirports = {}, onOiGlobe, onOiSelect, onOiHover, onOiFollow, oiHighlight = null }: OsirisMapProps) {
+function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightClick, onViewStateChange, onReady, flyToLocation, alertPinIds = null, projection = 'globe', terrainEnabled = false, terrainRetry = 0, terrainFocus = 0, onTerrainStatusChange, onLayerOff, mapStyle = 'dark', sweepData, scanTargets = [], demoMode = false, theme = 'core', drawnPolygons = [], arcgisLayers = [], drawMode = null, onDrawComplete, onDrawProgress, onDrawCancel, drawCommand = null, onMapCenter, onTransitStatus, route = null, userLocation = null, followUser = false, onFollowInterrupt, navigating = false, aircraftAirports = {} }: OsirisMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const popupRef = useRef<maplibregl.Popup | null>(null);
@@ -230,18 +217,7 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
   const prevArcgisLayersRef = useRef<string[]>([]);
   const satLayerRef = useRef<ReturnType<typeof createSatelliteLayer> | null>(null);
   const cloudLayerRef = useRef<ReturnType<typeof createCloudLayer> | null>(null);
-  const onOiGlobeRef = useRef(onOiGlobe);
-  const onOiSelectRef = useRef(onOiSelect);
-  const onOiHoverRef = useRef(onOiHover);
-  const onOiFollowRef = useRef(onOiFollow);
-  const oiGlobeRef = useRef<OiGlobe | null>(null);
   const netArcsRef = useRef<NetIntelArcs | null>(null);
-  useEffect(() => {
-    onOiGlobeRef.current = onOiGlobe;
-    onOiSelectRef.current = onOiSelect;
-    onOiHoverRef.current = onOiHover;
-    onOiFollowRef.current = onOiFollow;
-  }, [onOiGlobe, onOiSelect, onOiHover, onOiFollow]);
   // pick() returns an index into the array last handed to setPoints, so the
   // matching catalogue rows are kept in the same order to resolve it.
   const satRowsRef = useRef<SatelliteRow[]>([]);
@@ -576,7 +552,7 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
         'text-offset': [0, 1.5], 'text-max-width': 10, 'text-allow-overlap': false,
       }, paint: { 'text-color': '#D32F2F', 'text-halo-color': '#111', 'text-halo-width': 1.5, 'text-opacity': 0.85 }});
 
-      // Network Intel's links between these hosts are OI arcs: see lib/net-intel-arcs.
+      // Network Intel's links between these hosts are arcs: see lib/net-intel-arcs.
 
       /* ══ BOTNET C2 INFRASTRUCTURE — one dot per listed server ══
          Feodo Tracker lists where a C2 is hosted and whether it still
@@ -1169,8 +1145,6 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
       // made this bail out every single time.
       const hits = map.queryRenderedFeatures(e.point);
       if (hits.some(f => f.layer?.id && CLICKABLE_LAYERS.has(f.layer.id))) return;
-      // An OI arc or point is picked on the GPU too, and it is in front: the click is OI's.
-      if (oiGlobeRef.current?.hit(e.point)) return;
       const idx = layer.pick(e.point.x, e.point.y);
       const p = idx == null ? null : satRowsRef.current[idx];
       // Clicking past every satellite is how a selection is dismissed, so an
@@ -1939,11 +1913,7 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
       updateMapIcon('plane-grey', palette.flightUnknown, 24);
     }, [mapReady, palette]);
 
-  // OI's arcs take their three tones from the Style Studio (violet, magenta, indigo unless changed).
-  useEffect(() => {
-    oiGlobeRef.current?.setColors({ support: palette.oiSupport, oppose: palette.oiOppose, neutral: palette.oiNeutral });
-  }, [palette.oiSupport, palette.oiOppose, palette.oiNeutral]);
-  // Network Intel's links are OI arcs in a colour of their own: black unless changed.
+  // Network Intel's links are arcs in a colour of their own: black unless changed.
   useEffect(() => {
     netArcsRef.current?.setColor(palette.netIntel);
   }, [palette.netIntel]);
@@ -2149,8 +2119,8 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
     return () => { clearInterval(timer); setGeo('malware-new', []); };
   }, [mapReady, data.malware_threats, activeLayers.malware, setGeo]);
 
-  /* ── NETWORK INTEL LINKS ── hosts of the same malware family, joined by OI's
-     own arcs (see lib/net-intel-arcs). They used to be a lattice that tied
+  /* ── NETWORK INTEL LINKS ── hosts of the same malware family, joined by
+     arcs (see lib/net-intel-arcs). They used to be a lattice that tied
      each host to the next two in the list, whatever they were. */
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
@@ -2767,42 +2737,6 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
     if (!map.getSource('wind-credit')) map.addSource('wind-credit', { type: 'geojson', data: EMPTY_FC, attribution: WIND_ATTRIBUTION });
     if (!map.getLayer('wind-credit')) map.addLayer({ id: 'wind-credit', type: 'circle', source: 'wind-credit' });
   }, [mapReady, activeLayers.wind, mapStyle]);
-
-  // OSIRIS OI — a prediction drawn as it happens: actors, the events of the
-  // simulated worlds and arcs through the sky (see lib/oi/globe). The page feeds it
-  // run state directly, so the map does not re-render on every event; the
-  // layer re-adds itself after a style change.
-  useEffect(() => {
-    if (!mapReady || !mapRef.current) return;
-    const globe = attachOi(mapRef.current, {
-      onSelect: key => onOiSelectRef.current?.(key),
-      onHover: hover => onOiHoverRef.current?.(hover),
-      onFollowChange: following => onOiFollowRef.current?.(following),
-    });
-    globe.setColors({ support: paletteRef.current.oiSupport, oppose: paletteRef.current.oiOppose, neutral: paletteRef.current.oiNeutral });
-    oiGlobeRef.current = globe;
-    onOiGlobeRef.current?.(globe);
-    return () => {
-      oiGlobeRef.current = null;
-      onOiGlobeRef.current?.(null);
-      globe.destroy();
-    };
-  }, [mapReady]);
-
-  // OI Assist's marks: attached once the map is up, fed whatever the assistant marks.
-  const highlighterRef = useRef<Highlighter | null>(null);
-  const oiHighlightRef = useRef(oiHighlight);
-  useEffect(() => {
-    if (!mapReady || !mapRef.current) return;
-    const h = attachHighlights(mapRef.current);
-    h.set(oiHighlightRef.current);
-    highlighterRef.current = h;
-    return () => { highlighterRef.current = null; h.destroy(); };
-  }, [mapReady]);
-  useEffect(() => {
-    oiHighlightRef.current = oiHighlight;
-    highlighterRef.current?.set(oiHighlight);
-  }, [oiHighlight]);
 
   // ── DRAWN POLYGONS ──
   useEffect(() => {
