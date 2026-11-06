@@ -7,9 +7,19 @@ const tile = (url: string) =>
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
 });
 
 describe('GET /api/proxy-tiles', () => {
+  it('adds the CARTO API key when one is configured', async () => {
+    vi.stubEnv('CARTO_API_KEY', ' abc123 ');
+    const fetchMock = vi.fn(async () => new Response('tile'));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await tile('https://tiles-a.basemaps.cartocdn.com/vectortiles/carto.streets/v1/3/4/2.mvt?key=other');
+    expect(String((fetchMock.mock.calls[0] as unknown[])[0])).toBe('https://tiles-a.basemaps.cartocdn.com/vectortiles/carto.streets/v1/3/4/2.mvt?key=abc123');
+  });
+
   it('fetches basemap tiles', async () => {
     const fetchMock = vi.fn(async () => new Response('tile', { headers: { 'content-type': 'application/x-protobuf' } }));
     vi.stubGlobal('fetch', fetchMock);
