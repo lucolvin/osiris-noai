@@ -66,15 +66,15 @@ Osiris is a production-grade OSINT platform that provides situational awareness 
 
 ```
 ┌─────────────────────────────────────────────────┐
-│                  OSIRIS CLIENT                   │
-│  ┌──────────┐  ┌──────────┐  ┌───────────────┐ │
-│  │ MapLibre  │  │  HUD     │  │  RECON Toolkit│ │
-│  │  GL (GPU) │  │ Panels   │  │  Port Scan    │ │
-│  │  WebGL    │  │ Layers   │  │  DNS / WHOIS  │ │
-│  │  Render   │  │ Controls │  │  Vuln Scanner │ │
-│  └──────────┘  └──────────┘  └───────────────┘ │
+│                  OSIRIS CLIENT                  │
+│  ┌──────────┐  ┌──────────┐  ┌───────────────┐  │
+│  │ MapLibre │  │  HUD     │  │  RECON Toolkit│  │ 
+│  │  GL (GPU)│  │ Panels   │  │  Port Scan    │  │
+│  │  WebGL   │  │ Layers   │  │  DNS / WHOIS  │  │
+│  │  Render  │  │ Controls │  │  Vuln Scanner │  │
+│  └──────────┘  └──────────┘  └───────────────┘  │
 ├─────────────────────────────────────────────────┤
-│               NEXT.JS API ROUTES                 │
+│               NEXT.JS API ROUTES                │
 │  /api/flights         /api/earthquakes          │
 │  /api/cctv            /api/news                 │
 │  /api/fires           /api/maritime             │
@@ -84,11 +84,11 @@ Osiris is a production-grade OSINT platform that provides situational awareness 
 │  /api/osint/*  (whois, dns, ip, cve, sanctions, │
 │                 crypto, sweep, threats, …)      │
 ├─────────────────────────────────────────────────┤
-│              EXTERNAL DATA SOURCES               │
-│  OpenSky · USGS · NASA · NOAA · TfL · NVD      │
-│  GDACS · EONET · FIRMS · N2YO · RSS Feeds      │
+│              EXTERNAL DATA SOURCES              │
+│  OpenSky · USGS · NASA · NOAA · TfL · NVD       │
+│  GDACS · EONET · FIRMS · N2YO · RSS Feeds       │
 │  blockstream.info · Blockscout · OpenSanctions  │
-│  t.me public previews                            │
+│  t.me public previews                           │
 └─────────────────────────────────────────────────┘
 ```
 
