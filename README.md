@@ -1,11 +1,9 @@
 <div align="center">
 
-# ⬡ OSIRIS
+# ⬡ OSIRIS NoAI
 
-### Open Source Intelligence & Reconnaissance Integrated System
+### OSIRIS, with the AI features removed
 
-[![Live Demo](https://img.shields.io/badge/osirisai.live-00E5FF?style=for-the-badge&logo=vercel&logoColor=white)](https://osirislive.app)
-[![Support OSIRIS](https://img.shields.io/badge/Support_Project-Patreon-FF424D?style=for-the-badge&logo=patreon&logoColor=white)](https://www.patreon.com/posts/159077425)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org)
 [![MapLibre](https://img.shields.io/badge/MapLibre_GL-GPU_Rendered-396CB2?style=for-the-badge)](https://maplibre.org)
@@ -13,9 +11,25 @@
 
 **A real-time global intelligence dashboard that aggregates live flight tracking, CCTV networks, earthquake monitoring, conflict zone mapping, and 24/7 news feeds into a single GPU-accelerated interface.**
 
-[Live Demo](https://osirisai.live) · [Report Bug](https://github.com/simplifaisoul/osiris/issues) · [Request Feature](https://github.com/simplifaisoul/osiris/issues) · [Join Discord](https://discord.gg/umBykEpb98)
+[Report Bug](https://github.com/lucolvin/osiris-noai/issues) · [Request Feature](https://github.com/lucolvin/osiris-noai/issues) · [Original Project](https://github.com/simplifaisoul/osiris)
 
 </div>
+
+---
+
+## About this fork
+
+OSIRIS NoAI is a fork of [OSIRIS](https://github.com/simplifaisoul/osiris), created by
+[simplifaisoul](https://github.com/simplifaisoul) and released under the MIT License.
+All credit for the original project belongs to its author and contributors; their
+copyright notice is kept in [LICENSE](LICENSE).
+
+This fork removes:
+
+- **AI features**: OI Assist and OI Forecast, the MCP server, the Gemini briefing,
+  analysis and overview endpoints, and the on-device camera detector
+- **The $OSIRIS token chart**
+- **The Support menu** in the header
 
 ---
 
@@ -101,14 +115,6 @@ Osiris is a production-grade OSINT platform that provides situational awareness 
 - **GPU-accelerated rendering** — all map data rendered via WebGL, not DOM
 - **Progressive loading** — data fetched on-demand when layers are activated
 - **Viewport-aware** — only loads relevant data for the visible region
-
-### OI — a prediction engine (bring your own key)
-**OI Assist**: talk to the map (press O). Ask in words, typed or spoken, and OI flies you there, switches the layers on, finds what is live (flights, military aircraft, ships, quakes, fires, weather, news, cameras, satellites), marks it on the globe in cyan with the area it searched, lists it in cards you can click through, reads the markets, opens panels and starts forecasts, all on your own model key.
-
-**OI Forecast**: a prediction engine inspired by the community-made [Pythia](https://github.com/jangles-byte/Pythia) and by [MiroFish](https://github.com/666ghj/MiroFish). From Pythia comes the idea of forecasting from the live world OSIRIS already watches; from MiroFish, the method: cast the actors who shape an outcome and play them against each other in parallel simulated worlds. Ask a question and OI researches it from sources you can check (news, prices, prediction markets and the live feeds), runs the worlds, and has a report agent weigh the result against the crowd's price and a statistical baseline before it writes a calibrated forecast, every claim linked to its source. The whole run plays out on the globe as it happens.
-- **Your own data**: add files (CSV, JSON, Markdown, text, logs, web pages) or paste up to 100,000 characters. The world model reads it once; or have every actor read it in every period, and quote it. The extra input tokens are shown before you run, on your own key.
-- **Your own key**: OpenAI, Anthropic, Google Gemini, OpenRouter, Groq, DeepSeek, xAI, Mistral or Qwen. Kept in your browser, sent per request in a header, never stored on the server.
-- **REST API** under `/api/oi` with live Server-Sent Events, and an **MCP server** at `/api/mcp` so agents such as Hermes, Claude and Cursor can run predictions, steer them and read OSIRIS intelligence. See [the docs](https://osirisai.live/docs#oi).
 
 ### Texas CCTV
 Public TxDOT ITS snapshots are integrated with the existing camera markers, preview grid and viewer. Use `/api/cctv?region=texas` for Texas only; global and Texas location queries include the same source. District inventories are cached independently, with stale data retained during outages. Availability varies by district and camera; these are refreshing JPEG snapshots, not video streams.
@@ -269,34 +275,18 @@ unrelated sites with no way to find them.
 OSIRIS links every one of them straight through to the operator who runs it, which is
 also how bekijkhet.nu asks to be read.
 
-**OI** — the method behind OI follows [MiroFish](https://github.com/666ghj/MiroFish),
-the open-source swarm-intelligence prediction engine: seed a parallel world from real
-material, populate it with agents, let them interact while variables are injected, and
-hand the simulation to a report agent. OSIRIS rebuilds that method natively for its own
-feeds and globe; no MiroFish code is used.
-
 ---
 
 ## License
 
-MIT — see [LICENSE](LICENSE) for details.
+MIT — see [LICENSE](LICENSE) for details. Original work © 2026 simplifaisoul; modifications © 2026 lucolvin.
 
 ---
 
 <div align="center">
 
-**🛠️ SUPPORT THE OSIRIS PROJECT**
-The OSIRIS Global Intelligence Grid is entirely open-source, but running the backend scanners and data firehoses isn't cheap.
+**Originally built by [simplifaisoul](https://github.com/simplifaisoul)**
 
-If you want to help keep the servers alive, and support us to get access to better tools  unlock the **Special OSIRIS Console**, Currently Just a Cool UI. a you can officially support the project here : 
-
-🔗 [Support OSIRIS on Patreon](https://www.patreon.com/posts/159077425)
-
-*Supporters receive the `🔴 RedTeam Console` role and access to encrypted developer comms.*
-
-
-**Built by [simplifaisoul](https://github.com/simplifaisoul)**
-
-[Join our Discord to be a part of this movement!](https://discord.gg/umBykEpb98)
+To support the original project, see [OSIRIS on Patreon](https://www.patreon.com/posts/159077425) or [join its Discord](https://discord.gg/umBykEpb98).
 
 </div>

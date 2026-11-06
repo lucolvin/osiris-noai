@@ -1,7 +1,7 @@
 /**
  * OSIRIS — place lookups, shared by the browser and /api/geosearch.
  *
- * Search, directions search and OI's place lookups show the built-in place
+ * Search and directions search show the built-in place
  * list's matches the moment a key is pressed, then ask one of two online
  * sources and merge what it finds in front of them:
  *

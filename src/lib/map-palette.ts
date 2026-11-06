@@ -23,11 +23,7 @@ export interface MapPalette {
   flightGov: string;
   flightMilitary: string;
   flightUnknown: string;
-  /** OI's arcs: aligned or agreeing, opposed or disputing, and the rest. */
-  oiSupport: string;
-  oiOppose: string;
-  oiNeutral: string;
-  /** Network Intel's links: OI's arcs, drawn in one colour of their own. */
+  /** Network Intel's links: arcs, drawn in one colour of their own. */
   netIntel: string;
 }
 
@@ -47,9 +43,6 @@ export const MAP_VARS: Record<MapPaletteKey, string> = {
   flightGov: '--map-flight-gov',
   flightMilitary: '--map-flight-military',
   flightUnknown: '--map-flight-unknown',
-  oiSupport: '--map-oi-support',
-  oiOppose: '--map-oi-oppose',
-  oiNeutral: '--map-oi-neutral',
   netIntel: '--map-net-intel',
 };
 
@@ -73,9 +66,6 @@ export const MAP_DEFAULTS: MapPalette = {
   flightGov: '#ff9500',
   flightMilitary: '#ff0000',
   flightUnknown: '#546e7a',
-  oiSupport: '#b388ff',
-  oiOppose: '#ff5ccb',
-  oiNeutral: '#8c7cff',
   netIntel: '#000000',
 };
 

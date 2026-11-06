@@ -1,5 +1,5 @@
 /**
- * The geometry of OI's arcs: great circles between two points on
+ * The geometry of the map's arcs: great circles between two points on
  * Earth, lifted into the sky in proportion to their length, and packed into
  * the ribbon vertices the WebGL layer draws. Pure maths, so it is tested
  * without a GPU.

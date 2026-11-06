@@ -1,5 +1,5 @@
 /**
- * OSIRIS — Network Intel's links, drawn with OI's arcs.
+ * OSIRIS — Network Intel's links, drawn as arcs.
  *
  * Each C2 host on the Live Malware layer is joined to the hosts running the
  * same malware family, as a minimum spanning tree over great-circle distance:
@@ -9,13 +9,13 @@
  * stronger when both sit in the same autonomous system, which can point to a
  * shared operator or hosting provider. It is not observed traffic.
  *
- * The lines are an instance of OI's own arc layer (see lib/oi/globe), so they
- * share its ribbons, glow, draw-in and travelling pulses rather than imitating
- * them. Their colour is their own Style Studio swatch, black by default.
+ * The lines are an instance of the arc layer (see lib/arc-layer), with its
+ * ribbons, glow, draw-in and travelling pulses. Their colour is their own
+ * Style Studio swatch, black by default.
  */
 import type { Map as MlMap } from 'maplibre-gl';
-import { createArcLayer, stampBirths } from './oi/globe';
-import { distanceKm, rgb, type ArcSpec, type LngLat } from './oi/arcs';
+import { createArcLayer, stampBirths } from './arc-layer';
+import { distanceKm, rgb, type ArcSpec, type LngLat } from './arcs';
 
 export const NET_ARCS = 'net-intel-arcs';
 
@@ -96,7 +96,7 @@ export function attachNetIntelArcs(map: MlMap): NetIntelArcs {
   /** When each link started drawing, on the layer's clock. */
   const births = new Map<string, number>();
 
-  // Beneath the malware dots, the way OI's arcs sit beneath its nodes.
+  // Beneath the malware dots.
   const ensure = () => {
     if (!map.getStyle() || map.getLayer(NET_ARCS)) return;
     map.addLayer(layer, map.getLayer('malware-glow') ? 'malware-glow' : undefined);
@@ -116,13 +116,13 @@ export function attachNetIntelArcs(map: MlMap): NetIntelArcs {
       const arcs: ArcSpec[] = links.map((l, i) => ({
         from: [l.from.lng, l.from.lat],
         to: [l.to.lng, l.to.lat],
-        // OI's "aligned" tone, which here carries the links' own colour.
+        // The first tone, which here carries the links' own colour.
         tone: 0,
         id: i,
         highlight: 0,
         strength: l.sameAs ? 1 : 0.4,
         birth: births.get(keys[i])!,
-        // A relation, in OI's terms: a solid line with a pulse travelling along it.
+        // A solid line with a pulse travelling along it.
         kind: 0,
       }));
       layer.setArcs(arcs, false);

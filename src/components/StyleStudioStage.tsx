@@ -56,13 +56,6 @@ const PLANES: [MapPaletteKey, string, number][] = [
   ['flightMilitary', 'Military', -70], ['flightUnknown', 'Unknown', 15],
 ];
 
-/* Solid, dashed and dotted, as src/lib/oi/arcs.ts tells the three tones apart. */
-const ARCS: [MapPaletteKey, string, string, string | undefined][] = [
-  ['oiSupport', 'Aligned', 'Solid arc: the two ends agree.', undefined],
-  ['oiOppose', 'Opposed', 'Dashed arc: they dispute each other.', '6 4'],
-  ['oiNeutral', 'Neutral', 'Dotted arc: linked evidence.', '0.1 5'],
-];
-
 /** The on-screen pad from MapControls, as a still at three-quarter size. */
 function Pad({ on }: { on: boolean }) {
   const cell = 'w-6 h-6 rounded-md flex items-center justify-center text-[var(--text-secondary)]';
@@ -256,22 +249,9 @@ function specimens(s: StyleSettings): { title: string; items: Specimen[] }[] {
       })),
     },
     {
-      title: 'Map layers: OI',
-      items: ARCS.map(([key, label, where, dash]) => ({
-        k: key, label, where,
-        body: (
-          <Patch sky>
-            <path d="M24 63 Q60 -6 96 63" fill="none" strokeWidth="2" strokeLinecap="round" strokeDasharray={dash} style={stroke(key)} />
-            <circle cx="24" cy="63" r="2.5" style={fill(key)} />
-            <circle cx="96" cy="63" r="2.5" style={fill(key)} />
-          </Patch>
-        ),
-      })),
-    },
-    {
       title: 'Map layers: Network Intel',
       items: [{
-        k: 'netIntel', label: 'Links', where: 'The arcs joining C2 servers of one malware family, drawn the way OI draws its own.',
+        k: 'netIntel', label: 'Links', where: 'The arcs joining C2 servers of one malware family.',
         body: (
           <Patch>
             <path d="M24 63 Q60 -6 96 63" fill="none" strokeWidth="2" strokeLinecap="round" style={stroke('netIntel')} />

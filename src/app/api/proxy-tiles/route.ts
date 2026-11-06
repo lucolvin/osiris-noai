@@ -22,6 +22,11 @@ export async function GET(request: NextRequest) {
     }
     targetUrl.search = '';
     targetUrl.hash = '';
+    /* CARTO refuses keyless server-side requests, so send the Basemaps API key
+       when one is configured. The proxy sends no Referer, so the key must not
+       have a website restriction. */
+    const cartoKey = process.env.CARTO_API_KEY?.trim();
+    if (cartoKey) targetUrl.searchParams.set('key', cartoKey);
 
     const response = await fetch(targetUrl.toString(), { signal: AbortSignal.timeout(15000),
       headers: {
