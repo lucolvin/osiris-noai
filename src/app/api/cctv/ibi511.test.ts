@@ -7,6 +7,11 @@ import { fetchArizonaCameras } from './arizona';
 import { fetchIdahoCameras } from './idaho';
 import { fetchOntarioCameras } from './ontario';
 import { fetchAlbertaCameras } from './alberta';
+import { fetchPennsylvaniaCameras } from './pennsylvania';
+import { fetchWisconsinCameras } from './wisconsin';
+import { fetchConnecticutCameras } from './connecticut';
+import { fetchNewEnglandCameras } from './newengland';
+import { fetchAlaskaCameras } from './alaska';
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -98,6 +103,26 @@ describe('cameraCity', () => {
 });
 
 describe('mapIbi511Record', () => {
+  it('captions a multi-state deployment by the row\'s agency', () => {
+    const NE511: Ibi511Source = {
+      base: 'https://newengland511.org',
+      idPrefix: 'ne511',
+      source: 'New England 511',
+      state: 'New England',
+      stateByAgency: { NewHampshire: 'New Hampshire', Vermont: 'Vermont' },
+      bounds: { minLat: 42.6, maxLat: 47.5, minLng: -73.5, maxLng: -66.9 },
+    };
+    const row: Ibi511Record = {
+      ...sample,
+      source: 'NewHampshire',
+      county: null,
+      location: 'ST S MM 4.8',
+      latLng: { geography: { wellKnownText: 'POINT (-70.837655 43.127032)' } },
+    };
+    expect(mapIbi511Record(row, NE511)?.city).toBe('New Hampshire');
+    expect(mapIbi511Record({ ...row, source: 'Unknown' }, NE511)?.city).toBe('New England');
+  });
+
   it('maps a streaming camera', () => {
     expect(mapIbi511Record(sample, FDOT)).toEqual({
       id: 'fdot-1',
@@ -293,6 +318,11 @@ describe('live IBI 511 feeds', () => {
     ['Idaho', fetchIdahoCameras, 300, { minLat: 41.98, maxLat: 49.01, minLng: -117.25, maxLng: -111.0 }],
     ['Ontario', fetchOntarioCameras, 700, MTO.bounds],
     ['Alberta', fetchAlbertaCameras, 250, { minLat: 48.9, maxLat: 60.1, minLng: -120.1, maxLng: -109.9 }],
+    ['Pennsylvania', fetchPennsylvaniaCameras, 1200, { minLat: 39.6, maxLat: 42.4, minLng: -80.6, maxLng: -74.6 }],
+    ['Wisconsin', fetchWisconsinCameras, 350, { minLat: 42.4, maxLat: 47.4, minLng: -93.0, maxLng: -86.2 }],
+    ['Connecticut', fetchConnecticutCameras, 250, { minLat: 40.9, maxLat: 42.1, minLng: -73.8, maxLng: -71.7 }],
+    ['New England', fetchNewEnglandCameras, 250, { minLat: 42.6, maxLat: 47.5, minLng: -73.5, maxLng: -66.9 }],
+    ['Alaska', fetchAlaskaCameras, 80, { minLat: 51.0, maxLat: 71.5, minLng: -180.0, maxLng: -129.9 }],
   ];
 
   for (const [name, fetcher, atLeast, bounds] of cases) {
