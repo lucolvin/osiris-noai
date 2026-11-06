@@ -40,6 +40,7 @@ import { fetchOregonCameras } from './oregon';
 import { fetchMichiganCameras } from './michigan';
 import { fetchIndianaCameras } from './indiana';
 import { fetchIowaCameras } from './iowa';
+import { fetchIllinoisCameras } from './illinois';
 import { fetchKansasCameras } from './kansas';
 import { fetchMassachusettsCameras } from './massachusetts';
 import { fetchNebraskaCameras } from './nebraska';
@@ -78,7 +79,7 @@ import {
 /**
  * OSIRIS — Worldwide CCTV Camera API v2
  * Viewport-aware: pass ?region=xx to load cameras for specific regions
- * Supports: uk, us-east, us-west, us-central, canada, europe, asia
+ * Supports: uk, us-east, us-west, illinois, canada, europe, asia
  * Or pass ?lat=x&lng=y&radius=5 for proximity-based loading
  */
 
@@ -250,32 +251,6 @@ async function fetchCanadaCameras(): Promise<any[]> {
   return cams.filter((c: any) => c.lat && c.lng);
 }
 
-// ── US-CENTRAL: Chicago, Houston, Dallas, Denver ──
-async function fetchUSCentralCameras(): Promise<any[]> {
-  const cams: any[] = [];
-  // Illinois DOT
-  {
-    const data = await subSource('IDOT', 'https://www.travelmidwest.com/lmiga/cameraReport.json', 8000);
-    if (data) {
-      /* travelmidwest answers 200 with {updatedMessage, noDataMessage} and no
-         cameras at all — an object, not the array this assumed. That threw a
-         TypeError the old silent catch quietly absorbed; now it would take
-         us-central down with it, so the shape is checked. */
-      const rows = Array.isArray(data?.cameraReports) ? data.cameraReports : Array.isArray(data) ? data : [];
-      for (const cam of rows.slice(0, 800)) {
-        if (!cam.latitude || !cam.longitude) continue;
-        cams.push({
-          id: `ildot-${cams.length}`, lat: cam.latitude, lng: cam.longitude,
-          name: cam.cameraName || cam.description || 'IDOT Camera', city: 'Illinois', country: 'US',
-          feed_url: cam.imageUrl || cam.url || '', source: 'IDOT',
-        });
-      }
-    }
-  }
-
-  return cams.filter((c: any) => c.lat && c.lng);
-}
-
 // ── US-EAST: OH, DC, Florida, Georgia ──
 async function fetchUSEastCameras(): Promise<any[]> {
   const cams: any[] = [];
@@ -423,7 +398,6 @@ const RAW_REGION_FETCHERS: Record<string, RegionFetcher> = {
   'uk': fetchTfLCameras,
   'us-west': async () => { const [w, c] = await Promise.all([fetchWSDOTCameras(), fetchCaltransCameras()]); return [...w, ...c]; },
   'us-east': fetchUSEastCameras,
-  'us-central': fetchUSCentralCameras,
   'canada': fetchCanadaCameras,
   'europe': fetchEuropeCameras,
   'netherlands': fetchNetherlandsCameras,
@@ -459,6 +433,7 @@ const RAW_REGION_FETCHERS: Record<string, RegionFetcher> = {
   'michigan': fetchMichiganCameras,
   'indiana': fetchIndianaCameras,
   'iowa': fetchIowaCameras,
+  'illinois': fetchIllinoisCameras,
   'kansas': fetchKansasCameras,
   'massachusetts': fetchMassachusettsCameras,
   'nebraska': fetchNebraskaCameras,
@@ -537,7 +512,7 @@ const PAGED_REGION_BUDGET_MS = 30_000;
  * How long a response waits on regions it does not already have.
  *
  * A catalogue that already holds 35,000 cameras must not be held hostage by
- * one upstream that hangs. us-central does exactly that — it burns the full
+ * one upstream that hangs. us-central (since retired) did exactly that — it burned the full
  * slot budget on every attempt — and waiting on it turned a 0.2s response
  * into a 12s one for every visitor, which is what made the cameras take so
  * long to appear. With cameras already in hand, wait only briefly for the
@@ -782,13 +757,13 @@ function getRegionsForBounds(lat: number, lng: number, radius: number): string[]
   if (lat > 41.9 && lat < 49.1 && lng > -117.3 && lng < -111.0) regions.push('idaho');
   // Texas (TxDOT), including El Paso west of the central region.
   if (lat > 25.8 && lat < 36.6 && lng > -106.7 && lng < -93.4) regions.push('texas');
-  // US-Central
-  if (lat > 24 && lat < 49 && lng > -105 && lng < -80) regions.push('us-central');
-  // Michigan (MDOT) — explicit, since us-central only covers Illinois
+  // Illinois (IDOT Illinois Gateway)
+  if (lat > 36.9 && lat < 42.6 && lng > -91.6 && lng < -87.0) regions.push('illinois');
+  // Michigan (MDOT)
   if (lat > 41.6 && lat < 48.3 && lng > -90.5 && lng < -82.1) regions.push('michigan');
-  // Indiana (INDOT TrafficWise) — explicit, since us-central only covers Illinois
+  // Indiana (INDOT TrafficWise)
   if (lat > 37.7 && lat < 41.9 && lng > -88.2 && lng < -84.6) regions.push('indiana');
-  // Iowa (Iowa DOT 511) — explicit, since us-central only covers Illinois
+  // Iowa (Iowa DOT 511)
   if (lat > 40.3 && lat < 43.6 && lng > -96.7 && lng < -90.1) regions.push('iowa');
   /* The other CARS 511 and IBI 511 states. Each is listed explicitly for the
      same reason Iowa is: the broad US boxes cover the latitudes but carry
@@ -802,11 +777,11 @@ function getRegionsForBounds(lat: number, lng: number, radius: number): string[]
   // Maine, New Hampshire and Vermont share New England 511
   if (lat > 42.6 && lat < 47.5 && lng > -73.5 && lng < -66.9) regions.push('newengland');
   if (lat > 51.0 && lat < 71.5 && lng > -180.0 && lng < -129.9) regions.push('alaska');
-  // Louisiana (LADOTD 511) — explicit, since neither us-central nor us-east reaches the Gulf coast
+  // Louisiana (LADOTD 511) — explicit, since us-east does not reach the Gulf coast
   if (lat > 28.8 && lat < 33.1 && lng > -94.2 && lng < -88.6) regions.push('louisiana');
   /* The rest of the southern tier, all on the same IBI 511 stack. Each is
-     listed explicitly for the same reason Louisiana is: the broad us-east and
-     us-central boxes cover the latitudes but carry none of these agencies. */
+     listed explicitly for the same reason Louisiana is: the broad us-east box
+     covers the latitudes but carries none of these agencies. */
   if (lat > 24.4 && lat < 31.1 && lng > -87.7 && lng < -79.9) regions.push('florida');
   if (lat > 30.3 && lat < 35.1 && lng > -85.7 && lng < -80.8) regions.push('georgia');
   // South Carolina (SCDOT 511) — an Iteris build rather than IBI, but listed here with its neighbours
