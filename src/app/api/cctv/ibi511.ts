@@ -79,6 +79,12 @@ export interface Ibi511Source {
   snapshotOnly?: boolean;
   /** Caption of last resort, when a row names neither a city nor a county. */
   state: string;
+  /**
+   * The caption of last resort per agency (the `source` column), for a
+   * deployment that serves several states. New England 511 tags each row
+   * `Maine`, `NewHampshire` or `Vermont` and fills in neither city nor county.
+   */
+  stateByAgency?: Record<string, string>;
   /** Defaults to `US`. */
   country?: string;
   /**
@@ -207,7 +213,11 @@ export function mapIbi511Record(rec: Ibi511Record, cfg: Ibi511Source): CctvCamer
     lat,
     lng,
     name: cameraLabel(rec) || `${cfg.source} Camera ${rec.id}`,
-    city: cameraCity(cfg.ignoreCounty ? { ...rec, county: null } : rec, cfg.state, cfg.countySuffix),
+    city: cameraCity(
+      cfg.ignoreCounty ? { ...rec, county: null } : rec,
+      (rec.source && cfg.stateByAgency?.[rec.source]) || cfg.state,
+      cfg.countySuffix,
+    ),
     country: cfg.country ?? 'US',
     ...(snapshot ? { feed_url: snapshot } : {}),
     ...(video ? { stream_url: video, stream_type: 'hls' as const } : {}),

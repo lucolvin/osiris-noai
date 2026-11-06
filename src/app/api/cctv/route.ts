@@ -40,6 +40,14 @@ import { fetchOregonCameras } from './oregon';
 import { fetchMichiganCameras } from './michigan';
 import { fetchIndianaCameras } from './indiana';
 import { fetchIowaCameras } from './iowa';
+import { fetchKansasCameras } from './kansas';
+import { fetchMassachusettsCameras } from './massachusetts';
+import { fetchNebraskaCameras } from './nebraska';
+import { fetchPennsylvaniaCameras } from './pennsylvania';
+import { fetchWisconsinCameras } from './wisconsin';
+import { fetchConnecticutCameras } from './connecticut';
+import { fetchNewEnglandCameras } from './newengland';
+import { fetchAlaskaCameras } from './alaska';
 import { fetchCaltransCameras } from './caltrans';
 import { fetchNevadaCameras } from './nevada';
 import { fetchLouisianaCameras } from './louisiana';
@@ -451,6 +459,14 @@ const RAW_REGION_FETCHERS: Record<string, RegionFetcher> = {
   'michigan': fetchMichiganCameras,
   'indiana': fetchIndianaCameras,
   'iowa': fetchIowaCameras,
+  'kansas': fetchKansasCameras,
+  'massachusetts': fetchMassachusettsCameras,
+  'nebraska': fetchNebraskaCameras,
+  'pennsylvania': fetchPennsylvaniaCameras,
+  'wisconsin': fetchWisconsinCameras,
+  'connecticut': fetchConnecticutCameras,
+  'newengland': fetchNewEnglandCameras,
+  'alaska': fetchAlaskaCameras,
   'nevada': fetchNevadaCameras,
   'louisiana': fetchLouisianaCameras,
   'florida': fetchFloridaCameras,
@@ -774,6 +790,18 @@ function getRegionsForBounds(lat: number, lng: number, radius: number): string[]
   if (lat > 37.7 && lat < 41.9 && lng > -88.2 && lng < -84.6) regions.push('indiana');
   // Iowa (Iowa DOT 511) — explicit, since us-central only covers Illinois
   if (lat > 40.3 && lat < 43.6 && lng > -96.7 && lng < -90.1) regions.push('iowa');
+  /* The other CARS 511 and IBI 511 states. Each is listed explicitly for the
+     same reason Iowa is: the broad US boxes cover the latitudes but carry
+     none of these agencies. */
+  if (lat > 36.9 && lat < 40.1 && lng > -102.1 && lng < -94.1) regions.push('kansas');
+  if (lat > 39.9 && lat < 43.1 && lng > -104.1 && lng < -95.3) regions.push('nebraska');
+  if (lat > 42.4 && lat < 47.4 && lng > -93.0 && lng < -86.2) regions.push('wisconsin');
+  if (lat > 39.6 && lat < 42.4 && lng > -80.6 && lng < -74.6) regions.push('pennsylvania');
+  if (lat > 41.2 && lat < 42.9 && lng > -73.6 && lng < -69.8) regions.push('massachusetts');
+  if (lat > 40.9 && lat < 42.1 && lng > -73.8 && lng < -71.7) regions.push('connecticut');
+  // Maine, New Hampshire and Vermont share New England 511
+  if (lat > 42.6 && lat < 47.5 && lng > -73.5 && lng < -66.9) regions.push('newengland');
+  if (lat > 51.0 && lat < 71.5 && lng > -180.0 && lng < -129.9) regions.push('alaska');
   // Louisiana (LADOTD 511) — explicit, since neither us-central nor us-east reaches the Gulf coast
   if (lat > 28.8 && lat < 33.1 && lng > -94.2 && lng < -88.6) regions.push('louisiana');
   /* The rest of the southern tier, all on the same IBI 511 stack. Each is
